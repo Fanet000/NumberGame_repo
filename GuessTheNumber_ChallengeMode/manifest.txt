@@ -1,1 +1,4 @@
-Main-Class: GuessTheNumberChallenge 
+Manifest-Version: 1.0
+Main-Class: GuessTheNumberChallenge
+
+</rewritten_file> 
