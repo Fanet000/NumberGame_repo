@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="GuessTheNumberGame">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/GuessTheNumberGame.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
