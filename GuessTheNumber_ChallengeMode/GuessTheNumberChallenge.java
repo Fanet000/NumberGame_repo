@@ -268,108 +268,95 @@ class EnhancedGameUI extends JFrame {
     private Timer updateTimer;
     private JPanel statsPanel;
     private JPanel achievementsPanel;
-    private JPanel mainPanel;
-    private JPanel gamePanel;
-    private Color primaryColor = new Color(41, 128, 185);
-    private Color secondaryColor = new Color(52, 152, 219);
     private Color accentColor = new Color(46, 204, 113);
-    private Color textColor = new Color(44, 62, 80);
 
     public EnhancedGameUI() {
         // Set up the main window
-        setTitle("Number Guessing Challenge");
+        setTitle("Guess the Number - Challenge Mode");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(800, 600);
-        setLocationRelativeTo(null);
+        setPreferredSize(new Dimension(800, 600));
+        setLayout(new BorderLayout());
         
         // Initialize game session and player stats
         gameSession = new GameSession(1, 100, 10);
         playerStats = new PlayerStats();
         
-        // Create main panel with gradient background
-        mainPanel = new JPanel() {
-            @Override
-            protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                Graphics2D g2d = (Graphics2D) g;
-                g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-                GradientPaint gradient = new GradientPaint(0, 0, primaryColor, getWidth(), getHeight(), secondaryColor);
-                g2d.setPaint(gradient);
-                g2d.fillRect(0, 0, getWidth(), getHeight());
-            }
-        };
-        mainPanel.setLayout(new BorderLayout(20, 20));
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        // Create main game panel
+        JPanel mainGamePanel = new JPanel();
+        mainGamePanel.setLayout(new BorderLayout(10, 10));
+        mainGamePanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        // Create game panel
-        gamePanel = new JPanel();
-        gamePanel.setOpaque(false);
-        gamePanel.setLayout(new BoxLayout(gamePanel, BoxLayout.Y_AXIS));
-        gamePanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        // Create top panel for stats
+        JPanel topPanel = new JPanel(new BorderLayout());
+        statsPanel = createStatsPanel();
+        topPanel.add(statsPanel, BorderLayout.WEST);
+        progressBar = new JProgressBar(0, 100);
+        styleProgressBar(progressBar);
+        topPanel.add(progressBar, BorderLayout.CENTER);
+        mainGamePanel.add(topPanel, BorderLayout.NORTH);
 
-        // Create and style components
+        // Create center panel for game controls
+        JPanel centerPanel = new JPanel();
+        centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
+        centerPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+
+        // Add game title
         JLabel titleLabel = new JLabel("Guess The Number");
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 36));
-        titleLabel.setForeground(Color.WHITE);
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 32));
         titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        centerPanel.add(titleLabel);
+        centerPanel.add(Box.createVerticalStrut(20));
 
-        messageLabel = new JLabel("Enter your guess!");
+        // Add message label
+        messageLabel = new JLabel("Guess a number between 1 and 100");
         messageLabel.setFont(new Font("Arial", Font.PLAIN, 18));
-        messageLabel.setForeground(Color.WHITE);
         messageLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        centerPanel.add(messageLabel);
+        centerPanel.add(Box.createVerticalStrut(20));
 
-        guessField = new JTextField(10);
-        styleTextField(guessField);
-        guessField.setMaximumSize(new Dimension(200, 40));
-        guessField.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        guessButton = createStyledButton("Guess");
-        powerUpButton = createStyledButton("Use Power-Up");
-        restartButton = createStyledButton("New Game");
-
-        // Timer and progress bar
+        // Add timer label
         timerLabel = new JLabel("Time: 60s");
         timerLabel.setFont(new Font("Arial", Font.BOLD, 16));
-        timerLabel.setForeground(Color.WHITE);
         timerLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        centerPanel.add(timerLabel);
+        centerPanel.add(Box.createVerticalStrut(20));
 
-        progressBar = new JProgressBar();
-        styleProgressBar(progressBar);
-        progressBar.setMaximumSize(new Dimension(300, 20));
-        progressBar.setAlignmentX(Component.CENTER_ALIGNMENT);
+        // Create input panel
+        JPanel inputPanel = new JPanel();
+        inputPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
+        
+        // Add guess field
+        guessField = new JTextField(5);
+        guessField.setFont(new Font("Arial", Font.PLAIN, 20));
+        inputPanel.add(guessField);
 
-        // Add components to game panel
-        gamePanel.add(Box.createVerticalStrut(20));
-        gamePanel.add(titleLabel);
-        gamePanel.add(Box.createVerticalStrut(20));
-        gamePanel.add(messageLabel);
-        gamePanel.add(Box.createVerticalStrut(20));
-        gamePanel.add(guessField);
-        gamePanel.add(Box.createVerticalStrut(20));
-        gamePanel.add(guessButton);
-        gamePanel.add(Box.createVerticalStrut(10));
-        gamePanel.add(powerUpButton);
-        gamePanel.add(Box.createVerticalStrut(10));
-        gamePanel.add(restartButton);
-        gamePanel.add(Box.createVerticalStrut(20));
-        gamePanel.add(timerLabel);
-        gamePanel.add(Box.createVerticalStrut(10));
-        gamePanel.add(progressBar);
+        // Add buttons
+        guessButton = new JButton("Guess");
+        powerUpButton = new JButton("Use Power-Up");
+        restartButton = new JButton("New Game");
 
-        // Create stats and achievements panels
-        statsPanel = createStatsPanel();
+        styleButton(guessButton);
+        styleButton(powerUpButton);
+        styleButton(restartButton);
+
+        inputPanel.add(guessButton);
+        inputPanel.add(powerUpButton);
+        inputPanel.add(restartButton);
+
+        centerPanel.add(inputPanel);
+        mainGamePanel.add(centerPanel, BorderLayout.CENTER);
+
+        // Add achievements panel at the bottom
         achievementsPanel = createAchievementsPanel();
+        mainGamePanel.add(achievementsPanel, BorderLayout.SOUTH);
 
-        // Add panels to main panel
-        mainPanel.add(gamePanel, BorderLayout.CENTER);
-        mainPanel.add(statsPanel, BorderLayout.EAST);
-        mainPanel.add(achievementsPanel, BorderLayout.SOUTH);
+        // Add action listeners
+        guessButton.addActionListener(_ -> handleGuess());
+        powerUpButton.addActionListener(_ -> handlePowerUp());
+        restartButton.addActionListener(_ -> startNewGame());
 
         // Add main panel to frame
-        add(mainPanel);
-
-        // Initialize game
-        startNewGame();
+        add(mainGamePanel);
 
         // Set up timer for UI updates
         updateTimer = new Timer(1000, _ -> {
@@ -378,69 +365,39 @@ class EnhancedGameUI extends JFrame {
         });
         updateTimer.start();
 
-        // Pack and center the window
+        // Pack and show
         pack();
         setLocationRelativeTo(null);
+        setVisible(true);
     }
 
-    private void styleTextField(JTextField field) {
-        field.setFont(new Font("Arial", Font.PLAIN, 16));
-        field.setForeground(textColor);
-        field.setBackground(Color.WHITE);
-        field.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(primaryColor, 2),
-            BorderFactory.createEmptyBorder(5, 10, 5, 10)
-        ));
-    }
-
-    private JButton createStyledButton(String text) {
-        JButton button = new JButton(text) {
-            @Override
-            protected void paintComponent(Graphics g) {
-                if (!isOpaque()) {
-                    Graphics2D g2d = (Graphics2D) g;
-                    g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                    g2d.setColor(getBackground());
-                    g2d.fillRoundRect(0, 0, getWidth(), getHeight(), 15, 15);
-                }
-                super.paintComponent(g);
-            }
-        };
-        button.setOpaque(false);
-        button.setContentAreaFilled(false);
-        button.setBorderPainted(false);
-        button.setFocusPainted(false);
+    private void styleButton(JButton button) {
         button.setFont(new Font("Arial", Font.BOLD, 14));
         button.setForeground(Color.WHITE);
-        button.setBackground(accentColor);
-        button.setPreferredSize(new Dimension(150, 40));
-        button.setMaximumSize(new Dimension(150, 40));
-        button.setAlignmentX(Component.CENTER_ALIGNMENT);
-        button.addActionListener(_ -> {
-            if (button == guessButton) handleGuess();
-            else if (button == powerUpButton) handlePowerUp();
-            else if (button == restartButton) startNewGame();
-        });
-        return button;
-    }
+        button.setBackground(new Color(41, 128, 185));
+        button.setFocusPainted(false);
+        button.setBorder(BorderFactory.createEmptyBorder(8, 15, 8, 15));
+        button.setOpaque(true);
+        
+        // Add hover effect
+        button.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                button.setBackground(new Color(52, 152, 219));
+            }
 
-    private void styleProgressBar(JProgressBar bar) {
-        bar.setForeground(accentColor);
-        bar.setBackground(Color.WHITE);
-        bar.setBorder(BorderFactory.createEmptyBorder());
-        bar.setStringPainted(true);
-        bar.setFont(new Font("Arial", Font.BOLD, 12));
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                button.setBackground(new Color(41, 128, 185));
+            }
+        });
     }
 
     private JPanel createStatsPanel() {
         JPanel panel = new JPanel();
-        panel.setOpaque(false);
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        panel.setBorder(BorderFactory.createTitledBorder("Statistics"));
         
-        statsLabel = new JLabel();
-        statsLabel.setFont(new Font("Arial", Font.BOLD, 14));
-        statsLabel.setForeground(Color.WHITE);
+        statsLabel = new JLabel("Games: 0 | Wins: 0 | Streak: 0");
+        statsLabel.setFont(new Font("Arial", Font.PLAIN, 14));
         panel.add(statsLabel);
         
         return panel;
@@ -581,5 +538,14 @@ class EnhancedGameUI extends JFrame {
         updateStatsPanel();
         updateAchievementsPanel();
         repaint();
+    }
+
+    private void styleProgressBar(JProgressBar bar) {
+        bar.setPreferredSize(new Dimension(300, 20));
+        bar.setForeground(new Color(46, 204, 113));
+        bar.setBackground(new Color(236, 240, 241));
+        bar.setBorder(BorderFactory.createLineBorder(new Color(189, 195, 199)));
+        bar.setStringPainted(true);
+        bar.setFont(new Font("Arial", Font.BOLD, 12));
     }
 }
