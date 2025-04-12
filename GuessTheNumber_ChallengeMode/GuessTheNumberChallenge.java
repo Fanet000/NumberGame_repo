@@ -271,6 +271,10 @@ class EnhancedGameUI extends JFrame {
         setSize(800, 600);
         setLocationRelativeTo(null);
         
+        // Initialize game session and player stats
+        gameSession = new GameSession(1, 100, 10);
+        playerStats = new PlayerStats();
+        
         // Create main panel with gradient background
         mainPanel = new JPanel() {
             @Override
@@ -361,6 +365,9 @@ class EnhancedGameUI extends JFrame {
             updateProgressBar();
         });
         updateTimer.start();
+
+        // Make the window visible
+        setVisible(true);
     }
 
     private void styleTextField(JTextField field) {
@@ -444,8 +451,16 @@ class EnhancedGameUI extends JFrame {
     }
 
     private void updateStatsPanel() {
-        statsLabel.setText(String.format("Games: %d | Wins: %d | Streak: %d",
-            playerStats.getTotalGames(), playerStats.getGamesWon(), playerStats.getBestStreak()));
+        if (playerStats != null) {
+            statsLabel.setText(String.format(
+                "Games: %d | Wins: %d | Streak: %d\nWin Rate: %.1f%% | Coins: %d",
+                playerStats.getTotalGames(),
+                playerStats.getGamesWon(),
+                playerStats.getBestStreak(),
+                playerStats.getWinRate(),
+                playerStats.getCoins()
+            ));
+        }
     }
 
     private void updateTimerLabel() {
@@ -552,5 +567,6 @@ class EnhancedGameUI extends JFrame {
     private void updateUI() {
         updateStatsPanel();
         updateAchievementsPanel();
+        repaint();
     }
 }
