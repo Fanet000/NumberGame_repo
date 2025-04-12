@@ -15,13 +15,23 @@ import javax.swing.Timer;
 
 public class GuessTheNumberChallenge {
     public static void main(String[] args) {
+        // Use SwingUtilities.invokeLater to ensure thread safety
         SwingUtilities.invokeLater(() -> {
             try {
+                // Set the system look and feel
                 UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+                
+                // Create and show the game UI
+                EnhancedGameUI gameUI = new EnhancedGameUI();
+                gameUI.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                gameUI.setVisible(true);
             } catch (Exception e) {
                 e.printStackTrace();
+                JOptionPane.showMessageDialog(null, 
+                    "Error starting the game: " + e.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
             }
-            new EnhancedGameUI();
         });
     }
 }
@@ -266,6 +276,7 @@ class EnhancedGameUI extends JFrame {
     private Color textColor = new Color(44, 62, 80);
 
     public EnhancedGameUI() {
+        // Set up the main window
         setTitle("Number Guessing Challenge");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(800, 600);
@@ -354,6 +365,7 @@ class EnhancedGameUI extends JFrame {
         mainPanel.add(statsPanel, BorderLayout.EAST);
         mainPanel.add(achievementsPanel, BorderLayout.SOUTH);
 
+        // Add main panel to frame
         add(mainPanel);
 
         // Initialize game
@@ -366,8 +378,9 @@ class EnhancedGameUI extends JFrame {
         });
         updateTimer.start();
 
-        // Make the window visible
-        setVisible(true);
+        // Pack and center the window
+        pack();
+        setLocationRelativeTo(null);
     }
 
     private void styleTextField(JTextField field) {
